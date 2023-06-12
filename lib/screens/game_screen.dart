@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'o_ronda.dart';
 
-class namePage extends StatelessWidget {
+class s_game extends StatefulWidget {
 
   @override
-  Widget build(BuildContext context) {
+  State<s_game> createState() => _s_gameState();
+}
+
+class _s_gameState extends State<s_game> {
+  @override
+  Widget build(BuildContext context) 
+  {
     return Scaffold(
       body: Center(
         child: Column(
@@ -28,7 +35,7 @@ Widget columGenerator()
 {
   Column columna = new Column(children: [],);
 
-  columna.children.add(Text('Turno de los jugadores'));
+  columna.children.add(Text('Ingresar numero de jugadores'));
   columna.children.add(SizedBox(height: 100,));
 
   for(int i = 0; i < 4; i++)
@@ -38,3 +45,4 @@ Widget columGenerator()
 
   return columna;
 }
+
