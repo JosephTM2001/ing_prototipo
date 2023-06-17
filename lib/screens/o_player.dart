@@ -5,12 +5,12 @@ class Player
 
   Player(this.name);
 
-  AddPoints(int n)
+  addPoints(int n)
   {
     this.points += n;
   }
 
-  ResetPoints()
+  resetPoints()
   {
     this.points = 0;
   }

@@ -32,7 +32,7 @@ Widget buttonGame(BuildContext context)
       icon: Icon(Icons.gamepad),
       label: Text("Jugar"),
       style: TextButton.styleFrom(foregroundColor: Colors.white,),
-      onPressed: () =>  Navigator.push(context, MaterialPageRoute( builder: (context) => s_game() )) 
+      onPressed: () =>  Navigator.push(context, MaterialPageRoute( builder: (context) => S_game() )) 
     ),
   );
 }

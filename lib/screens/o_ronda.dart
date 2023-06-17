@@ -2,19 +2,19 @@ import 'O_player.dart';
 
 class Ronda
 {
-  int Np;
+  int np;
   List<Player> players =[];
 
-  Ronda(this.Np);
+  Ronda(this.np);
 
   //Agregar jugadores
-  AddPlayer(String name)
+  addPlayer(String name)
   {
     players.add(Player(name));
   }
 
   //Actualizar puntos
-  UpdatePoints(List<int> p)
+  updatePoints(List<int> p)
   {
     //Prevencion de errores
     if(p.length != players.length)
@@ -27,7 +27,7 @@ class Ronda
     {
       for(int i = 0; i < players.length;i++)
       {
-        players[i].AddPoints(p[i]);
+        players[i].addPoints(p[i]);
       }
     }
   }
