@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'o_ronda.dart';
+import 'gameloop_screen.dart';
 
 class S_game extends StatefulWidget {
 
@@ -9,67 +9,59 @@ class S_game extends StatefulWidget {
 
 class _s_gameState extends State<S_game> {
   
-  Widget widgaux =  SizedBox(width: 0, height: 0);
+  List<TextEditingController> listcontroller = List.generate(4, (index) => TextEditingController() );
 
   @override
   Widget build(BuildContext context) 
   {
     return Scaffold(
-      body: Center(
-        child: Column(
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            widgaux,
-            selectPlayers(widgaux, setState),
-            Container(
-              child: TextButton.icon(
-                icon: Icon(Icons.back_hand), 
-                label: Text('regresar'),
-                onPressed: () => Navigator.pop(context)
-              ),
+      body: ListView(
+        children :<Widget> [
+          gridGenerator(context, listcontroller),       
+          Container(
+            child: TextButton.icon(
+              icon: Icon(Icons.back_hand), 
+              label: Text('regresar'),
+              onPressed: () => Navigator.pop(context)
             ),
-          ],
+          ),
+          Container(
+            child: TextButton.icon(
+              icon: Icon(Icons.back_hand), 
+              label: Text('siguiente'),
+              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute( builder: (context) => S_gameloop(nombres: listcontroller) )) 
+            ),
+          ),
+      ]
         ),
-     ),
-   );
+     );
   }
 }
 
-
-Widget selectPlayers(Widget intern, Function? callback)
+Widget gridGenerator(BuildContext context, List<TextEditingController> controllers)
 {
-  Column columna = new Column(children: [],);
+  var size = MediaQuery.of(context).size;
 
-  for(int i = 0; i < 6; i++)
+  final double itemHeight = (size.height - kToolbarHeight - 24) / 8;
+  final double itemWidth = size.width / 2;
+
+  List<Widget> a = [];
+
+  for(int i = 0; i < 4; i++)
   {
-    columna.children.add(
-      TextButton(
-        onPressed:  () 
-        {
-          columnGenerator(i+1);
-          callback;
-        },
-        child: Text("${i+1}"),
-     )
+    a.add(TextField(controller: controllers[i],));
+
+    a.add(
+      Container(
+        child: Text('jugador ${i+1}')
+      ), 
     );
   }
 
-  return columna;
+  return  GridView.count(
+  shrinkWrap: true,
+  crossAxisCount: 2,
+  childAspectRatio: (itemWidth / itemHeight),
+  children: a,
+  );
 }
-
-Widget columnGenerator(int num)
-{
-  Column columna = new Column(children: [],);
-
-  columna.children.add(Text('Ingresar numero de jugadores'));
-  columna.children.add(SizedBox(height: 100,));
-
-  for(int i = 0; i < num; i++)
-  { 
-      columna.children.add(TextField());
-  }
-
-  return columna;
-}
-
-
