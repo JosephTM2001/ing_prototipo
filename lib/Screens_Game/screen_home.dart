@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ing_prototipo/Screens_Game/screen_game.dart';
+import 'package:ing_prototipo/Screens_Game/screen_make.dart';
 
 class Screen_home extends StatefulWidget
 {
@@ -14,7 +14,7 @@ class _Screen_homeState extends State<Screen_home> {
      return Scaffold(
       body: Center(
         child: Column(
-          children: [TextButton(onPressed: () => {Navigator.of(context).push(MaterialPageRoute(builder: (context) => Screen_game()))} , child: Text('Iniciar juego')),],
+          children: [TextButton(onPressed: () => {Navigator.of(context).push(MaterialPageRoute(builder: (context) => Screen_make()))} , child: Text('Crear sala')),],
         )
       )
     );    

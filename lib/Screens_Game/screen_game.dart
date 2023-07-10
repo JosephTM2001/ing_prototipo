@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:ing_prototipo/Class_Game/class_Player.dart';
+import 'package:ing_prototipo/Class_Game/class_Round.dart';
 
 class Screen_game extends StatefulWidget
 {
+  final int pn, mp;
+  Screen_game({required this.pn,required this.mp});
+
   @override
-  State<Screen_game> createState() => _Screen_gameState();
+  State<Screen_game> createState() => _Screen_gameState(playersnumber: pn,maxpoints: mp);
 }
 
 //estado 
 class _Screen_gameState extends State<Screen_game> {
 
-  //Variebles globales que se usaran
-  Map<String,dynamic> savegame = {};                          //Guardador principal de toda la informacion, tratar de enviar esto a la base de datos
-  List<String> namesList = [],phrasesList = [];               //Listas que guardara los nombre de los participantes y la frases
-  List<int> electionList = [], pointList = [];                //Listas que guardaran las elecciones de los jugadores y los puntos que tienen
-  String theme = ' ';                                         //Variable que guardara el tema de la ronda
-  int indexSelector = 0,indexTurnPlayer = 0,indexRound = 1;   //Variables que serviran de index, para seleccionar el menu, el turno del jugador, y el numero de la ronda, respectivamente
+  final int playersnumber,maxpoints;
+  _Screen_gameState({required this.playersnumber,required this.maxpoints});
 
+  //Variebles globales que se usaran
+  Map<String,dynamic> savegame = {};                          //Guardador principal de toda la informacion, tratar de enviar esto a la base de datos         
+  int indexSelector = 0,indexTurnPlayer = 0,indexRound = 1, highpoint = 0;   //Variables que serviran de index, para seleccionar el menu, el turno del jugador, y el numero de la ronda, respectivamente
+
+  List<Player> playersList = [];
+  late Round actualRound;
+
+  var size;
 
   //Menú principal
   @override
   Widget build(BuildContext context) {
 
+  size = MediaQuery.of(context).size;
     return Scaffold(
       body: Center(
         child: Column(
@@ -54,41 +64,55 @@ class _Screen_gameState extends State<Screen_game> {
   {
     List<TextEditingController> namesSave = []; //Guardar los nombres
     List<Widget> childrenList = [];
+    List<Widget> grid =[];
 
     //for que crea widgets para los nombres
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < playersnumber; i++)
     {
-      childrenList.add(Text('Introducir nombre de jugador ${i+1}'));
+      childrenList.add(Container( color: Colors.amber,child: Text('Introducir nombre de jugador ${i+1}',textAlign: TextAlign.center)));
 
       namesSave.add(TextEditingController());
       childrenList.add(TextField(controller: namesSave[i],));
     }
 
-    //Boton para continuar a la siguiente parte del juego
-    childrenList.add(TextButton(
-      onPressed: ()=> setState(() { putValues(namesSave);}), 
-      child: Text('Continuar'))
+    grid.add(
+      GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: ( (size.width/2) / ((size.height - kToolbarHeight - 24) / (childrenList.length/2))),
+        shrinkWrap : true,
+        children: childrenList,
+      )
     );
 
-    return childrenList;
+    //Boton para continuar a la siguiente parte del juego
+    grid.add(Container(
+      color: Colors.blueAccent,
+      child: TextButton(
+        onPressed: ()=> setState(() { putValues(namesSave);}), 
+        child: const Text('Continuar',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        )
+          ),
+    )
+    );
+
+    return grid;
   }
 
-  //Función encargada de iniciar todas las variables
+ 
   void putValues(List<TextEditingController> tNames)
   {
-    //almacenar los nombres y guardarlos en la variable global
-    List<String> tnamelist = [];
     for(int i = 0; i < tNames.length; i++)
     {
-      tnamelist.add(tNames[i].text);
-    }    
-    namesList = tnamelist;
-    
-    //iniciar lista de puntajes
-    List<int> tpoint = [];
-    pointList = List.generate(namesList.length, (index) => 0);
+      playersList.add(Player(tNames[i].text));
+    }   
 
-    //siguiente parte del loop
+    actualRound = Round(playersList, indexRound);
+
+    //actualRound = Round(playersList, indexRound);
     indexSelector = 1;
   }
 
@@ -99,21 +123,21 @@ class _Screen_gameState extends State<Screen_game> {
 
     //guardar el tema del juego en variables locales
     TextEditingController controllertheme = TextEditingController(), controllerphrase = TextEditingController();
-    controllertheme.text = theme;
+    controllertheme.text = actualRound.theme;
 
     //Si el jugador es el cuentacuentos debe colocar la frase y el tema
     if(indexTurnPlayer == 0)
     {
-      childrenList.add(Text('Turno de ${namesList[indexTurnPlayer]}'));
+      childrenList.add(Text('Turno de ${playersList[indexTurnPlayer].name}'));
       childrenList.add(Text('Introduce el tema'));
       childrenList.add(TextField(controller: controllertheme,));    
     }
 
     //Si el jugador es un adivinante debe dejar su frase para engañar
-    else if (indexTurnPlayer < namesList.length)
+    else if (indexTurnPlayer < playersList.length)
     {
-      childrenList.add(Text('Turno de ${namesList[indexTurnPlayer]}'));
-      childrenList.add(Text('Temas: ${theme}'));
+      childrenList.add(Text('Turno de ${playersList[indexTurnPlayer].name}'));
+      childrenList.add(Text('Temas: ${actualRound.theme}'));
     }
 
     childrenList.add(Text('Introduce tu frase'));
@@ -122,15 +146,15 @@ class _Screen_gameState extends State<Screen_game> {
     //pasar al siguiente jugador
     childrenList.add(TextButton(
       onPressed: ()=> setState(() { 
-        phrasesList.add(controllerphrase.text);
-        theme = controllertheme.text;
+        actualRound.setPhrase(controllerphrase.text);
+        actualRound.setTheme(controllertheme.text);
       }), 
       child: Text('Pasar al siguiente jugador'))
     );
 
     //pasamos al siguiente jugador, si se terminan se pasa a la siguiente seccion del loop
     indexTurnPlayer++;
-    if(indexTurnPlayer == namesList.length)
+    if(indexTurnPlayer == playersList.length)
     {
       indexTurnPlayer = 1;
       indexSelector = 2;
@@ -145,26 +169,26 @@ class _Screen_gameState extends State<Screen_game> {
     List<Widget> childrenList = [];
 
     //generamos una lista random para mezclar las frases
-    List<int> random = List.generate(4, (index) => index);
+    List<int> random = List.generate(playersList.length, (index) => index);
     random.shuffle();
 
     //verificacion para evitar desastres
-    if(indexTurnPlayer < namesList.length)
-    {childrenList.add(Text('Elije una frase jugador: ${namesList[indexTurnPlayer]}'));}
+    if(indexTurnPlayer < playersList.length)
+    {childrenList.add(Text('Elije una frase jugador: ${actualRound.playersList[indexTurnPlayer].name}'));}
 
     //for que nos dara las frases en distintos ordenes
-    for(int i = 0; i < phrasesList.length;i++)
+    for(int i = 0; i < actualRound.phrasesList.length;i++)
     {
       childrenList.add(TextButton(
         onPressed: () => setState(() {
-          electionList.add(random[i]);
+          actualRound.electionList.add(random[i]);
         }),
-        child: Text('${phrasesList[random[i]]}')));
+        child: Text('${actualRound.phrasesList[random[i]]}')));
     }
 
     //pasamos al siguiente jugador, cuando todos terminen pasamos a ver los resultados
     indexTurnPlayer++;
-    if(indexTurnPlayer == namesList.length)
+    if(indexTurnPlayer == playersList.length)
     {
       indexTurnPlayer = 0;
       indexSelector = 3;
@@ -173,94 +197,44 @@ class _Screen_gameState extends State<Screen_game> {
     return childrenList;
   }
 
-  //Función para obtener los puntos designados
-  void getPoints()
-  {
-    bool confirmed = false;
-    int p = 0;
-
-    //verificador de puntaje
-    for(int i = 0; i < electionList.length;i++)
-    {
-      //Si se elije la respuesta del cuentacuentos entonces se le asigna un punto
-      if(electionList[i] == 0)
-      {
-        confirmed = true;
-        p++;
-      }
-
-      //Si todos eligieron la respuesta correcta entonces se dice que el cuenta cuentos perdio
-      if(p == namesList.length - 1)
-      {
-        confirmed = false;
-      }
-
-      //Se le da puntos a quien haya engañado a otro jugador, no contaran autovotaciones
-      for(int j = 1; j < namesList.length;j++)
-      {
-        if(electionList[i] == j && i != j-1)
-        {
-          pointList[j] += 1;
-        }
-      }
-    }
-
-    //alguien le acerto a la frase correcta
-    if(confirmed)
-    {  
-      pointList[0] += 2;
-      for(int i = 0; i < electionList.length;i++)
-      {
-        if(electionList[i] == 0)
-        {
-          pointList[i+1] += 3;
-        }
-      }
-    }
-
-    //Nadie o todos acertaron a la frase correcta
-    else
-    {
-      for(int i = 0; i < electionList.length;i++)
-      {
-          pointList[i+1] += 2;
-      }
-    }
-  }
-
+  
   //Resultados
   List<Widget> resultRound()
   {
     List<Widget> childrenList = [];
-    getPoints();    
 
     //Se guarda todo el progreso del juego
-    savegame['jugadores ronda ${indexRound}'] = namesList;
-    savegame['Tema ronda ${indexRound}'] = theme;
-    savegame['frases ronda ${indexRound}'] = phrasesList;
-    savegame['puntajes ronda ${indexRound}'] = pointList;
+    actualRound.getPoints();    
+    playersList = actualRound.getPlayerUpdate();
+    highpoint = actualRound.getHighpoint();
+    savegame = actualRound.updateSavegame(savegame);
 
     //Se muestra en pantalla los resultados
-    for(int i = 0; i < pointList.length;i++)
+    for(int i = 0; i < playersList.length;i++)
     {
-      childrenList.add(Text('El jugador ${namesList[i]} tiene ${pointList[i]} puntos'));
+      childrenList.add(Text('El jugador ${playersList[i].name} tiene ${playersList[i].points} puntos'));
     }
 
     //Botones para regresar o continuar jugando
-    childrenList.add(TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Volver al menu principal')));  //->enviar aqui el savegame
-    childrenList.add(TextButton(onPressed: ()=> setState(() {}), child: Text('Continuar jugando')));  
+    if(highpoint < maxpoints)
+    {
+      childrenList.add(TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Volver al menu principal')));  //->enviar aqui el savegame
+      childrenList.add(TextButton(onPressed: ()=> setState(() {}), child: Text('Continuar jugando')));  
+    }
+
+    else
+    {
+      childrenList.add(TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Terminar partida')));  //->enviar aqui el savegame
+    }
 
     //Reinicio de todas las variables globales
     indexRound++;
     indexSelector = 1;
-    indexTurnPlayer = 0;
-    electionList = [];
-    phrasesList = [];
-    theme = '';
 
-    //el primer jugador pasa a ser el ultimo
-    namesList.add(namesList[0]);
-    namesList.removeAt(0);
+    playersList.add(playersList[0]);
+    playersList.removeAt(0);
+
+    actualRound = Round(playersList, indexRound);
 
     print(' ${savegame} \n');
 
