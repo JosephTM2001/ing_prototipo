@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ing_prototipo/Class_Game/class_Player.dart';
 import 'package:ing_prototipo/Class_Game/class_Round.dart';
+import 'package:ing_prototipo/Class_Game/class_Database.dart';
 
 class Screen_game extends StatefulWidget
 {
@@ -21,6 +22,7 @@ class _Screen_gameState extends State<Screen_game> {
   Map<String,dynamic> savegame = {};                          //Guardador principal de toda la informacion, tratar de enviar esto a la base de datos         
   int indexSelector = 0,indexTurnPlayer = 0,indexRound = 1, highpoint = 0;   //Variables que serviran de index, para seleccionar el menu, el turno del jugador, y el numero de la ronda, respectivamente
 
+  DataBase datamain = DataBase();
   List<Player> playersList = [];
   late Round actualRound;
 
@@ -224,7 +226,15 @@ class _Screen_gameState extends State<Screen_game> {
 
     else
     {
-      childrenList.add(TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Terminar partida')));  //->enviar aqui el savegame
+      childrenList.add(
+        TextButton(
+          onPressed: ()=> {
+            datamain.getData(savegame),
+            Navigator.pop(context),
+          }, 
+          child: Text('Terminar partida')
+        )
+      );  //->enviar aqui el savegame
     }
 
     //Reinicio de todas las variables globales
