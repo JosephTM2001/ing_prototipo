@@ -69,7 +69,7 @@ class _Screen_makeState extends State<Sala> {
       ));
     }
 
-    childrenList.add(Text("Seleccionar Puntaje maximo"));
+    childrenList.add(Text("Seleccionar cantidad de rondas"));
     for (int i = 0; i < 4; i++) {
       /*childrenList.add(TextButton(
           onPressed: () => {
@@ -77,7 +77,7 @@ class _Screen_makeState extends State<Sala> {
               },
           child: Text("${i * 5} puntos maximos")));*/
       childrenList.add(CheckboxListTile(
-        title: Text("${(i + 1) * 5} puntos maximos"),
+        title: Text("${(i + 1) * 5} rondas"),
         secondary: Icon(Icons.abc_rounded),
         controlAffinity: ListTileControlAffinity.platform,
         value: activadoList2[i],

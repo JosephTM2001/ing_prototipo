@@ -1,9 +1,11 @@
 class Usuario {
   late String name;
   late int points;
+  late String icon;
 
-  Usuario(String n) {
+  Usuario(String n,String i) {
     name = n;
+    icon = i;
     points = 0;
   }
 

@@ -10,14 +10,14 @@ class Partida extends StatefulWidget {
 
   @override
   State<Partida> createState() =>
-      _Screen_gameState(numeroDeJugadores: pn, puntosMaximos: mp);
+      _Screen_gameState(numeroDeJugadores: pn, maximoRondas: mp);
 }
 
 //estado
 class _Screen_gameState extends State<Partida> {
-  final int numeroDeJugadores, puntosMaximos;
+  final int numeroDeJugadores, maximoRondas;
   _Screen_gameState(
-      {required this.numeroDeJugadores, required this.puntosMaximos});
+      {required this.numeroDeJugadores, required this.maximoRondas});
 
   //Variebles globales que se usaran
   Map<String, dynamic> guardarJuego =
@@ -161,7 +161,7 @@ class _Screen_gameState extends State<Partida> {
       children: childrenList,
     ));
 
-    //Boton para continuar a la siguiente parte del juego
+        //Boton para continuar a la siguiente parte del juego
     grid.add(Container(
       color: Colors.blueAccent,
       child: TextButton(
@@ -185,12 +185,30 @@ class _Screen_gameState extends State<Partida> {
           )),
     ));
 
+
+    grid.add(SizedBox(width: 10,height: 10,));
+
+    grid.add(Container(
+      color: Colors.blueAccent,
+      child: TextButton(
+          onPressed: () => setState(() {
+            Navigator.pop(context);
+              }),
+          child: const Text(
+            'Regresar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          )),
+    ));
+
     return grid;
   }
 
   void putValues(List<TextEditingController> tNames) {
     for (int i = 0; i < tNames.length; i++) {
-      listaDeJugadores.add(Usuario(tNames[i].text));
+      listaDeJugadores.add(Usuario(tNames[i].text,list[list2[i]]));
     }
 
     rondaActual = Ronda(listaDeJugadores, indiceDeRonda);
@@ -212,6 +230,20 @@ class _Screen_gameState extends State<Partida> {
     if (indiceDeTrunoDeUsuario == 0) {
       childrenList.add(
           Text('Turno de ${listaDeJugadores[indiceDeTrunoDeUsuario].name}'));
+      childrenList.add(      
+        Container(
+            height: 120.0,
+            width: 120.0,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(listaDeJugadores[indiceDeTrunoDeUsuario].icon),
+                fit: BoxFit.scaleDown,
+              ),
+              shape: BoxShape.circle,
+            ),
+            margin: const EdgeInsets.all(30.0),
+            //color: Colors.amber,
+            child: Text('', textAlign: TextAlign.center)),);
       childrenList.add(Text('Introduce el tema'));
       childrenList.add(TextField(
         controller: controllertheme,
@@ -225,6 +257,20 @@ class _Screen_gameState extends State<Partida> {
             Text('Turno de ${listaDeJugadores[indiceDeTrunoDeUsuario].name}'),
         alignment: Alignment.center,
       ));
+      childrenList.add(      
+        Container(
+            height: 120.0,
+            width: 120.0,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(listaDeJugadores[indiceDeTrunoDeUsuario].icon),
+                fit: BoxFit.scaleDown,
+              ),
+              shape: BoxShape.circle,
+            ),
+            margin: const EdgeInsets.all(30.0),
+            //color: Colors.amber,
+            child: Text('', textAlign: TextAlign.center)),);
       childrenList.add(Text('Temas: ${rondaActual.tema}'));
     }
 
@@ -263,6 +309,20 @@ class _Screen_gameState extends State<Partida> {
     if (indiceDeTrunoDeUsuario < listaDeJugadores.length) {
       childrenList.add(Text(
           'Elije una frase jugador: ${rondaActual.listaJugadores[indiceDeTrunoDeUsuario].name}'));
+      childrenList.add(      
+        Container(
+            height: 120.0,
+            width: 120.0,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(listaDeJugadores[indiceDeTrunoDeUsuario].icon),
+                fit: BoxFit.scaleDown,
+              ),
+              shape: BoxShape.circle,
+            ),
+            margin: const EdgeInsets.all(30.0),
+            //color: Colors.amber,
+            child: Text('', textAlign: TextAlign.center)),);
     }
 
     //for que nos dara las frases en distintos ordenes
@@ -287,6 +347,7 @@ class _Screen_gameState extends State<Partida> {
   //Resultados
   List<Widget> resultRound() {
     List<Widget> childrenList = [];
+    List<Widget> grid = [];
 
     //Se guarda todo el progreso del juego
     rondaActual.getPuntos();
@@ -296,19 +357,50 @@ class _Screen_gameState extends State<Partida> {
 
     //Se muestra en pantalla los resultados
     for (int i = 0; i < listaDeJugadores.length; i++) {
-      childrenList.add(Text(
-          'El jugador ${listaDeJugadores[i].name} tiene ${listaDeJugadores[i].points} puntos'));
+      
+      childrenList.add(      
+        Container(
+            height: 40.0,
+            width: 40.0,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(listaDeJugadores[i].icon),
+                fit: BoxFit.scaleDown,
+              ),
+              shape: BoxShape.circle,
+            ),
+            margin: const EdgeInsets.all(30.0),
+            //color: Colors.amber,
+            child: Text('', textAlign: TextAlign.center)),);
+      childrenList.add(
+                Container(
+          alignment: Alignment.center,
+          child: SizedBox(
+            height: 50,
+            // set desired height here
+            child: Text('El jugador ${listaDeJugadores[i].name} tiene ${listaDeJugadores[i].points} puntos')
+          ),
+        ),);
     }
 
+    grid.add(GridView.count(
+      crossAxisCount: 2,
+      childAspectRatio: ((tamanio.width / 2) /
+          ((tamanio.height - kToolbarHeight - 24) / (childrenList.length / 2))),
+      shrinkWrap: true,
+      children: childrenList,
+    ));
+
+
     //Botones para regresar o continuar jugando
-    if (mayorPuntaje < puntosMaximos) {
-      childrenList.add(TextButton(
+    if (indiceDeRonda < maximoRondas) {
+      grid.add(TextButton(
+          onPressed: () => setState(() {}), child: Text('Continuar jugando')));
+      grid.add(TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text('Volver al menu principal'))); //->enviar aqui el savegame
-      childrenList.add(TextButton(
-          onPressed: () => setState(() {}), child: Text('Continuar jugando')));
     } else {
-      childrenList.add(TextButton(
+      grid.add(TextButton(
           onPressed: () => {
                 datamain.getData(guardarJuego),
                 Navigator.pop(context),
@@ -327,6 +419,6 @@ class _Screen_gameState extends State<Partida> {
 
     print(' ${guardarJuego} \n');
 
-    return childrenList;
+    return grid;
   }
 }

@@ -9,14 +9,14 @@ class Screen_game extends StatefulWidget
   Screen_game({required this.pn,required this.mp});
 
   @override
-  State<Screen_game> createState() => _Screen_gameState(playersnumber: pn,maxpoints: mp);
+  State<Screen_game> createState() => _Screen_gameState(playersnumber: pn,maxrounds: mp);
 }
 
 //estado 
 class _Screen_gameState extends State<Screen_game> {
 
-  final int playersnumber,maxpoints;
-  _Screen_gameState({required this.playersnumber,required this.maxpoints});
+  final int playersnumber,maxrounds;
+  _Screen_gameState({required this.playersnumber,required this.maxrounds});
 
   //Variebles globales que se usaran
   Map<String,dynamic> savegame = {};                          //Guardador principal de toda la informacion, tratar de enviar esto a la base de datos         
@@ -218,8 +218,9 @@ class _Screen_gameState extends State<Screen_game> {
     }
 
     //Botones para regresar o continuar jugando
-    if(highpoint < maxpoints)
+    if(indexRound < maxrounds)
     {
+      print('////////////////////////////////////////////// Ronda ${indexRound} //////////////////////////////');
       childrenList.add(TextButton(onPressed: ()=> Navigator.pop(context), child: Text('Volver al menu principal')));  //->enviar aqui el savegame
       childrenList.add(TextButton(onPressed: ()=> setState(() {}), child: Text('Continuar jugando')));  
     }
